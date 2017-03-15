@@ -1,0 +1,76 @@
+---
+title: "Data Table"
+output:
+  html_document: default
+  html_notebook: default
+---
+# Here we will be learning all about data.table package.
+
+The content is from datacamp course: Data analysis - The data table way
+
+```{r,include=FALSE}
+library(data.table)
+```
+
+`data.table` package is loaded
+
+The format of a data table syntax is 
+`DT[i, j, by]` which stands for 
+* Take DT, subset by `i`, then calculate `j` grouped by `by` *
+
+The SQL equivalents for i, j, by in R are given by WHERE, SELECT & GROUP BY respectively
+
+We will cover each of the parts one by one
+
+There are 3 things we need to know about datatypes
+    
+* `typeof(1)` is double or numeric but `typeof(1L)` is integer
+* `typeof(NA)` is logical but `typeof(NA_integer_)` is integer
+* character strings are very efficient in R due to use of global cache
+
+## `i` part
+
+###`i` is the subsetting part
+```{r}
+DT <- data.table(A = 1:5, B = c('a', 'b', 'c', 'd', 'e'), C = TRUE)
+DT #The smaller vector is recycled
+DT[2:3,]
+DT[2:3] #Gives the same result as the previous code
+```
+
+###A data.table is also a data.frame
+```{r}
+class(DT)
+```
+Hence, the basic rules of data.frame also work on the variable DT
+
+###`.N` stores the number of rows of a data table
+```{r}
+DT[.N] #Results in the last row of DT
+DT[nrow(DT)] #Gives the same result
+DT[.N-2] #Third last row of DT 
+```
+
+
+## `j` part
+
+### `j` is the column selection part
+
+We can select columns using `.()` (dot-paranthesis syntax)
+
+```{r}
+DT[, .(B, C)] #Selecting columns B and C
+```
+
+### We can not only select columns, but throw pretty much everything at `j`
+
+```{r}
+DT[, .(A, B, C, loga_mynewcolumn = log(A))] #Printing a data table containing logarithmic operation column on A
+DT[, .(B, C = sum(A))] # C is recycled
+DT[, log(10)] #This results in a vector, not a data table
+# Notice the syntax.. This doesn't contain our dot-paranthesis syntax
+DT[, {print(10)
+  print(15)
+  print(1:5)}] #We are throwing 3 printing statements at `j`
+```
+
