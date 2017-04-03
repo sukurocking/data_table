@@ -48,7 +48,7 @@ Hence, the basic rules of data.frame also work on the variable DT
 ```{r}
 DT[.N] #Results in the last row of DT
 DT[nrow(DT)] #Gives the same result
-DT[.N-2] #Third last row of DT 
+DT[.N - 2] #Third last row of DT 
 ```
 
 
@@ -74,3 +74,234 @@ DT[, {print(10)
   print(1:5)}] #We are throwing 3 printing statements at `j`
 ```
 
+### We can also use .N in `j`
+
+This is how it works: It only calculates the number of rows in the group. When it is grouped with `by` argument, it is even more powerful (Will be shown later)
+
+```{r}
+DT <- data.table(iris)
+DT[,.N]
+```
+
+## `by` part
+
+by is the part where the data table is _grouped by_ or _summarized_
+
+Once, again lets recall the basic syntax of a table:
+`DT[i, j, by]` stands for Take `DT`, subset by `i`, then calculate `j` grouped by `by`
+
+### Now, lets calculate the mean Sepal Length for each species
+
+```{r}
+DT[, .(mean(Sepal.Length)), by = .(Species)]
+DT[, mean(Sepal.Length), by = Species] #Gives the same result..
+# Notice the syntax.. we have skipped the dot-paranthesis syntax
+# This can be done if there is only one argument for 'j' and 'by'
+DT[, mean(Sepal.Length), Species] #The same output again
+```
+
+### Using .N in `j`
+
+In the below code, we will use .N in `j`, which will calculate the no. of rows for each group
+```{r}
+DT[, .N, by = Species]
+DT[, .(count = .N), by = Species] #Same output, column name changed
+
+# Now we will use an expression in 'by'
+DT[, .(count = .N), by = .(Starting_with = substr(Species,1,1))]
+```
+
+### Using expressions in `by`
+
+Using rounded area to group the specimens
+Now, lets group the specimens by Sepal Area(rounded to the nearest 10 cm2) and count how many for each group
+```{r}
+DT[, .N, by = .(10 * round(Sepal.Length * Sepal.Width / 10))]
+DT[, .(Count = .N), by = .(Area = 10 * round(Sepal.Length * Sepal.Width / 10))] # Naming the columns
+```
+
+
+## Chaining operations
+
+Chaining operations comes very handy, when we have multiple operations to do with a datatable. It helps to avoid those pesky objects that can quickly clutter up the workspace
+
+```{r}
+DT[, .(
+  Sepal.Length = mean(Sepal.Length),
+  Sepal.Width = mean(Sepal.Width),
+  Petal.Width = mean(Petal.Width),
+  Petal.Length = mean(Petal.Length)
+  ), by = Species][order(Species)]
+# This calculates the mean of each of the columns, grouped by Species
+```
+
+Lets try it an easier way
+```{r}
+DT[, lapply(.SD, mean), by = Species]
+```
+`.SD` stores the subset of data for each unique value of `by` argument
+So, the above command applies mean for all the _subset_ groups of the data table, grouped by Species.
+
+Similar to `.SD`, we have `.SDcols` which can be used to subset columns
+Lets say, we want to perform the same `mean` of only the Sepal.Length column
+```{r}
+DT[, lapply(.SD,mean), by = Species, .SDcols = "Sepal.Length"]
+# OR
+DT[, lapply(.SD, mean), by = Species, .SDcols = 1]
+# Apply mean for those columns starting with Petal
+DT[, lapply(.SD, mean), by = Species, .SDcols = grep("Petal", colnames(DT))]
+```
+
+As we can see, there is no `.()` around lapply, because it returns a list
+
+## Next we will learn abt the following things:
+1. := operator, `:=` functional operator, removing and updating columns by reference.
+2. set functions - set, setnames, setcolorder
+3. indexing
+4. setkey
+
+### `:=` operator
+
+`:=` lets us assign/modify/ create columns by reference. In such a way, we dont need to give the assignment operator
+
+Lets try and delete columns from a data table and see
+
+```{r}
+DT[,c("Sepal.Length", "Sepal.Width") := NULL] # Deleting 2 columns
+DT[,Petal.Width := NULL] # Shorthand for deleting a column
+DT
+```
+`:=` can also be used to set column values
+```{r}
+DT[, Species := c("a", "b", "c")] # Recycling vector ("a","b","c") in the 2nd column
+DT
+DT[, c("Petal.Length", "Species") := list(1:150, 51:200)] # Modifying 2 columns at once
+DT
+```
+
+#### `:=` Functional operator
+``:=`` can also be used to modify multiple columns
+```{r}
+DT[, `:=`(Petal.Length = NULL, Species = 61:210)]
+DT
+```
+
+Notice the back-ticks (``) in the operator
+
+One of the most important things of understanding the concepts of data table is that if a single variable is defined outside of a data table, it is evaluated in the outside environment and it is evaluated inside the scope of the data table, if otherwise
+
+```{r, include=FALSE}
+DT <- data.table(iris)
+```
+
+Another way of modifying columns and elements of a data table is by set commands
+
+### Set functions
+
+These include `set`, `setnames`, `setcolorder`
+
+Lets say, we want to set `NA` values for 3 random rows for each of the columns `Sepal.Width` and `Sepal.Length`
+```{r}
+for (j in 1:2) {
+  set(DT, i = sample(150, 3), j = j, NA)
+}
+rm(j)
+DT[is.na(Sepal.Length)] # Indexing of rows (in the `i` part)
+DT[Sepal.Length>7]
+```
+
+`setnames()` is for setting column names and `setcolorder()` is for setting column orders
+```{r}
+# Changing column names starting from Sepal. to "".. Removing the "Sepal." prefix
+setnames(DT, old = colnames(DT), new = gsub("Sepal.","",colnames(DT)))
+DT #Now look at our data table
+setcolorder(DT, neworder = c("Species", "Length", "Width", "Petal.Length", "Petal.Width"))
+DT
+```
+
+### Keys
+
+Setkey is very powerful function for data tables. It is kinda like a power optimizer for data tables
+```{r}
+setkey(DT, "Species")
+DT
+```
+
+It sorts the row names and it provides many other functionalities too
+
+```{r}
+set.seed(100)
+x <- data.table(letter = sample(letters[1:10],50, replace = TRUE), number = sample(10, 50, replace = TRUE), logical = c(TRUE,FALSE))
+x # Before setting keys
+setkey(x, "letter"); x #After setting "letter" column as key
+x["a"]
+```
+
+By setting a "key" column, we allow it to be used as super-charged row names. We can also setup 2 column keys
+```{r}
+setkey(x,letter, number)
+x # Take a look at it.. The ordering has changed
+x[c("a","f")] # Looking at two groups at once
+# By default, all the rows are returned. This behaviour can be changed using mult argument
+x[c("a","f"), mult = "first"]
+x[c("b","c")]
+x[c("b","c"), mult = "last"]
+x[.("b",7)] # Indexing 2 columns, letter and number.. Notice the .() syntax again
+x[.("c",10)]
+x[c("b","c","z")] # NA introduced for no possible match
+x[c("b", "c", "z"), nomatch = 0] #NA value removed
+x[.(c("b","c"),c(3,10))]
+x[.(c("b","c"),c(10,3))] #NAs introduced
+x[.(c("b","c","d"),c(3,10,11))]
+x[.(c("b","c","d"),c(3,10,11)), nomatch = 0] # Skipped NAs
+```
+
+Now, we will use the `.EACHI` argument to evaluate each of the `i` groups
+```{r}
+x[c("b","c")]
+x[c("b","c"), .SD[c(1,.N)], by = .EACHI]
+# In the above step, we returned the first and last rows of each of the groups
+# In the next step, we will return the groups before returning the first and last rows of the groups
+x[c("b","c"), { print(.SD); .SD[c(1,.N)] }, by = .EACHI]
+x[c("b", "c"), c(print(.SD) , .SD[c(1, .N)]), by = .EACHI] # The same result
+```
+
+So as we can see, we can throw pretty much anything and everything at `j`, as long as it returns a list
+```{r}
+x[c("b","c"), summary(x), by = .EACHI]
+```
+
+We can extract the keys of a data table by using `keys()` function
+```{r}
+key(x)
+```
+
+## Rolling joins
+
+In the previous section, we learnt about equijoins, the fact that we could find the contents of a data table that match a key index, for e.g. "b" and "c" in the previous section
+
+In this section, we will learn abt rolling joins, finding contents of a data table that do not match the indices provided
+```{r}
+x[,newnu:= sample(10,replace = TRUE)] #Adding a new column
+x[,logical:=NULL] #Removing logical column
+x <- x[1:10] #Limiting ourselves to 10 rows
+x
+x[.("b")]
+x[.("b",3)] #Equijoin
+x[.("b",4)] # Returns NA
+x[.("b",4), roll = TRUE] #Rolling to the prevalent row
+x[.("b",6),roll = TRUE]
+x[.("b",6), roll = "nearest"] #Rolling to nearest row
+x[.("b",0:10)] #Contains NA values for non-matching rows
+x[.("b",0:10), roll = +Inf] #Forward roll
+x[.("b", 0:10), roll = +Inf, rollends = TRUE] #The values before the first match.. for number values 0,1,2 are assigned values
+x[.("b",0:10),roll = -Inf] #Backward roll
+x[.("b",6),roll = TRUE]
+x["b"]; x[.("b",6),roll = 2] #Searching for a matching row within 2 row window
+x["b"]; x[.("b",6),roll = 3] #Successfully searching for a matching row within 3 previous rows
+x["b"]; x[.("b",4),roll = -Inf]
+x["b"]; x[.("b",4),roll = -2] # Trying to match backwards for a matching row
+x["b"]; x[.("b",4),roll = -3] # Successfully matched
+```
+
+Thoroughly enjoyed learning Data table. I will be using it prominently in my analyses

@@ -217,10 +217,10 @@ DT[2:3] #Gives the same result as the previous code</code></pre>
 <h3><code>.N</code> stores the number of rows of a data table</h3>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuRFRbLk5dICNSZXN1bHRzIGluIHRoZSBsYXN0IHJvdyBvZiBEVFxuRFRbbnJvdyhEVCldICNHaXZlcyB0aGUgc2FtZSByZXN1bHRcbkRUWy5OLTJdICNUaGlyZCBsYXN0IHJvdyBvZiBEVCBcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuRFRbLk5dICNSZXN1bHRzIGluIHRoZSBsYXN0IHJvdyBvZiBEVFxuRFRbbnJvdyhEVCldICNHaXZlcyB0aGUgc2FtZSByZXN1bHRcbkRUWy5OIC0gMl0gI1RoaXJkIGxhc3Qgcm93IG9mIERUIFxuYGBgIn0= -->
 <pre class="r"><code>DT[.N] #Results in the last row of DT
 DT[nrow(DT)] #Gives the same result
-DT[.N-2] #Third last row of DT </code></pre>
+DT[.N - 2] #Third last row of DT </code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -254,12 +254,70 @@ DT[, {print(10)
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+</div>
+<div id="we-can-also-use-.n-in-j" class="section level3">
+<h3>We can also use .N in <code>j</code></h3>
+<p>This is how it works: It only calculates the number of rows in the group. When it is grouped with <code>by</code> argument, it is even more powerful (Will be shown later)</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuRFQgPC0gZGF0YS50YWJsZShpcmlzKVxuRFRbLC5OXVxuYGBgIn0= -->
+<pre class="r"><code>DT &lt;- data.table(iris)
+DT[,.N]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+</div>
+<div id="by-part" class="section level2">
+<h2><code>by</code> part</h2>
+<p>by is the part where the data table is <em>grouped by</em> or <em>summarized</em></p>
+<p>Once, again lets recall the basic syntax of a table: <code>DT[i, j, by]</code> stands for Take <code>DT</code>, subset by <code>i</code>, then calculate <code>j</code> grouped by <code>by</code></p>
+<div id="now-lets-calculate-the-mean-sepal-length-for-each-species" class="section level3">
+<h3>Now, lets calculate the mean Sepal Length for each species</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuRFRbLCAuKG1lYW4oU2VwYWwuTGVuZ3RoKSksIGJ5ID0gLihTcGVjaWVzKV1cbkRUWywgbWVhbihTZXBhbC5MZW5ndGgpLCBieSA9IFNwZWNpZXNdICNHaXZlcyB0aGUgc2FtZSByZXN1bHQuLlxuIyBOb3RpY2UgdGhlIHN5bnRheC4uIHdlIGhhdmUgc2tpcHBlZCB0aGUgZG90LXBhcmFudGhlc2lzIHN5bnRheFxuIyBUaGlzIGNhbiBiZSBkb25lIGlmIHRoZXJlIGlzIG9ubHkgb25lIGFyZ3VtZW50IGZvciAnaicgYW5kICdieSdcbkRUWywgbWVhbihTZXBhbC5MZW5ndGgpLCBTcGVjaWVzXSAjVGhlIHNhbWUgb3V0cHV0IGFnYWluXG5gYGAifQ== -->
+<pre class="r"><code>DT[, .(mean(Sepal.Length)), by = .(Species)]
+DT[, mean(Sepal.Length), by = Species] #Gives the same result..
+# Notice the syntax.. we have skipped the dot-paranthesis syntax
+# This can be done if there is only one argument for 'j' and 'by'
+DT[, mean(Sepal.Length), Species] #The same output again</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="using-.n-in-j" class="section level3">
+<h3>Using .N in <code>j</code></h3>
+<p>In the below code, we will use .N in <code>j</code>, which will calculate the no. of rows for each group</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuRFRbLCAuTiwgYnkgPSBTcGVjaWVzXVxuRFRbLCAuKGNvdW50ID0gLk4pLCBieSA9IFNwZWNpZXNdICNTYW1lIG91dHB1dCwgY29sdW1uIG5hbWUgY2hhbmdlZFxuXG4jIE5vdyB3ZSB3aWxsIHVzZSBhbiBleHByZXNzaW9uIGluICdieSdcbkRUWywgLihjb3VudCA9IC5OKSwgYnkgPSAuKFN0YXJ0aW5nX3dpdGggPSBzdWJzdHIoU3BlY2llcywxLDEpKV1cbmBgYCJ9 -->
+<pre class="r"><code>DT[, .N, by = Species]
+DT[, .(count = .N), by = Species] #Same output, column name changed
+
+# Now we will use an expression in 'by'
+DT[, .(count = .N), by = .(Starting_with = substr(Species,1,1))]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="using-expressions-in-by" class="section level3">
+<h3>Using expressions in <code>by</code></h3>
+<p>Using rounded area to group the specimens Now, lets group the specimens by Sepal Area(rounded to the nearest 10 cm2) and count how many for each group</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuRFRbLCAuTiwgYnkgPSAuKDEwICogcm91bmQoU2VwYWwuTGVuZ3RoICogU2VwYWwuV2lkdGggLyAxMCkpXVxuRFRbLCAuKENvdW50ID0gLk4pLCBieSA9IC4oQXJlYSA9IDEwICogcm91bmQoU2VwYWwuTGVuZ3RoICogU2VwYWwuV2lkdGggLyAxMCkpXSAjIE5hbWluZyB0aGUgY29sdW1uc1xuYGBgIn0= -->
+<pre class="r"><code>DT[, .N, by = .(10 * round(Sepal.Length * Sepal.Width / 10))]
+DT[, .(Count = .N), by = .(Area = 10 * round(Sepal.Length * Sepal.Width / 10))] # Naming the columns</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkRhdGEgVGFibGUiDQpvdXRwdXQ6DQogIGh0bWxfZG9jdW1lbnQ6IGRlZmF1bHQNCiAgaHRtbF9ub3RlYm9vazogZGVmYXVsdA0KLS0tDQojIEhlcmUgd2Ugd2lsbCBiZSBsZWFybmluZyBhbGwgYWJvdXQgZGF0YS50YWJsZSBwYWNrYWdlLg0KDQpUaGUgY29udGVudCBpcyBmcm9tIGRhdGFjYW1wIGNvdXJzZTogRGF0YSBhbmFseXNpcyAtIFRoZSBkYXRhIHRhYmxlIHdheQ0KDQpgYGB7cixpbmNsdWRlPUZBTFNFfQ0KbGlicmFyeShkYXRhLnRhYmxlKQ0KYGBgDQoNCmBkYXRhLnRhYmxlYCBwYWNrYWdlIGlzIGxvYWRlZA0KDQpUaGUgZm9ybWF0IG9mIGEgZGF0YSB0YWJsZSBzeW50YXggaXMgDQpgRFRbaSwgaiwgYnldYCB3aGljaCBzdGFuZHMgZm9yIA0KKiBUYWtlIERULCBzdWJzZXQgYnkgYGlgLCB0aGVuIGNhbGN1bGF0ZSBgamAgZ3JvdXBlZCBieSBgYnlgICoNCg0KVGhlIFNRTCBlcXVpdmFsZW50cyBmb3IgaSwgaiwgYnkgaW4gUiBhcmUgZ2l2ZW4gYnkgV0hFUkUsIFNFTEVDVCAmIEdST1VQIEJZIHJlc3BlY3RpdmVseQ0KDQpXZSB3aWxsIGNvdmVyIGVhY2ggb2YgdGhlIHBhcnRzIG9uZSBieSBvbmUNCg0KVGhlcmUgYXJlIDMgdGhpbmdzIHdlIG5lZWQgdG8ga25vdyBhYm91dCBkYXRhdHlwZXMNCiAgICANCiogYHR5cGVvZigxKWAgaXMgZG91YmxlIG9yIG51bWVyaWMgYnV0IGB0eXBlb2YoMUwpYCBpcyBpbnRlZ2VyDQoqIGB0eXBlb2YoTkEpYCBpcyBsb2dpY2FsIGJ1dCBgdHlwZW9mKE5BX2ludGVnZXJfKWAgaXMgaW50ZWdlcg0KKiBjaGFyYWN0ZXIgc3RyaW5ncyBhcmUgdmVyeSBlZmZpY2llbnQgaW4gUiBkdWUgdG8gdXNlIG9mIGdsb2JhbCBjYWNoZQ0KDQojIyBgaWAgcGFydA0KDQojIyNgaWAgaXMgdGhlIHN1YnNldHRpbmcgcGFydA0KYGBge3J9DQpEVCA8LSBkYXRhLnRhYmxlKEEgPSAxOjUsIEIgPSBjKCdhJywgJ2InLCAnYycsICdkJywgJ2UnKSwgQyA9IFRSVUUpDQpEVCAjVGhlIHNtYWxsZXIgdmVjdG9yIGlzIHJlY3ljbGVkDQpEVFsyOjMsXQ0KRFRbMjozXSAjR2l2ZXMgdGhlIHNhbWUgcmVzdWx0IGFzIHRoZSBwcmV2aW91cyBjb2RlDQpgYGANCg0KIyMjQSBkYXRhLnRhYmxlIGlzIGFsc28gYSBkYXRhLmZyYW1lDQpgYGB7cn0NCmNsYXNzKERUKQ0KYGBgDQpIZW5jZSwgdGhlIGJhc2ljIHJ1bGVzIG9mIGRhdGEuZnJhbWUgYWxzbyB3b3JrIG9uIHRoZSB2YXJpYWJsZSBEVA0KDQojIyNgLk5gIHN0b3JlcyB0aGUgbnVtYmVyIG9mIHJvd3Mgb2YgYSBkYXRhIHRhYmxlDQpgYGB7cn0NCkRUWy5OXSAjUmVzdWx0cyBpbiB0aGUgbGFzdCByb3cgb2YgRFQNCkRUW25yb3coRFQpXSAjR2l2ZXMgdGhlIHNhbWUgcmVzdWx0DQpEVFsuTi0yXSAjVGhpcmQgbGFzdCByb3cgb2YgRFQgDQpgYGANCg0KDQojIyBgamAgcGFydA0KDQojIyMgYGpgIGlzIHRoZSBjb2x1bW4gc2VsZWN0aW9uIHBhcnQNCg0KV2UgY2FuIHNlbGVjdCBjb2x1bW5zIHVzaW5nIGAuKClgIChkb3QtcGFyYW50aGVzaXMgc3ludGF4KQ0KDQpgYGB7cn0NCkRUWywgLihCLCBDKV0gI1NlbGVjdGluZyBjb2x1bW5zIEIgYW5kIEMNCmBgYA0KDQojIyMgV2UgY2FuIG5vdCBvbmx5IHNlbGVjdCBjb2x1bW5zLCBidXQgdGhyb3cgcHJldHR5IG11Y2ggZXZlcnl0aGluZyBhdCBgamANCg0KYGBge3J9DQpEVFssIC4oQSwgQiwgQywgbG9nYV9teW5ld2NvbHVtbiA9IGxvZyhBKSldICNQcmludGluZyBhIGRhdGEgdGFibGUgY29udGFpbmluZyBsb2dhcml0aG1pYyBvcGVyYXRpb24gY29sdW1uIG9uIEENCkRUWywgLihCLCBDID0gc3VtKEEpKV0gIyBDIGlzIHJlY3ljbGVkDQpEVFssIGxvZygxMCldICNUaGlzIHJlc3VsdHMgaW4gYSB2ZWN0b3IsIG5vdCBhIGRhdGEgdGFibGUNCiMgTm90aWNlIHRoZSBzeW50YXguLiBUaGlzIGRvZXNuJ3QgY29udGFpbiBvdXIgZG90LXBhcmFudGhlc2lzIHN5bnRheA0KRFRbLCB7cHJpbnQoMTApDQogIHByaW50KDE1KQ0KICBwcmludCgxOjUpfV0gI1dlIGFyZSB0aHJvd2luZyAzIHByaW50aW5nIHN0YXRlbWVudHMgYXQgYGpgDQpgYGANCg0K</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkRhdGEgVGFibGUiDQpvdXRwdXQ6DQogIGh0bWxfZG9jdW1lbnQ6IGRlZmF1bHQNCiAgaHRtbF9ub3RlYm9vazogZGVmYXVsdA0KLS0tDQojIEhlcmUgd2Ugd2lsbCBiZSBsZWFybmluZyBhbGwgYWJvdXQgZGF0YS50YWJsZSBwYWNrYWdlLg0KDQpUaGUgY29udGVudCBpcyBmcm9tIGRhdGFjYW1wIGNvdXJzZTogRGF0YSBhbmFseXNpcyAtIFRoZSBkYXRhIHRhYmxlIHdheQ0KDQpgYGB7cixpbmNsdWRlPUZBTFNFfQ0KbGlicmFyeShkYXRhLnRhYmxlKQ0KYGBgDQoNCmBkYXRhLnRhYmxlYCBwYWNrYWdlIGlzIGxvYWRlZA0KDQpUaGUgZm9ybWF0IG9mIGEgZGF0YSB0YWJsZSBzeW50YXggaXMgDQpgRFRbaSwgaiwgYnldYCB3aGljaCBzdGFuZHMgZm9yIA0KKiBUYWtlIERULCBzdWJzZXQgYnkgYGlgLCB0aGVuIGNhbGN1bGF0ZSBgamAgZ3JvdXBlZCBieSBgYnlgICoNCg0KVGhlIFNRTCBlcXVpdmFsZW50cyBmb3IgaSwgaiwgYnkgaW4gUiBhcmUgZ2l2ZW4gYnkgV0hFUkUsIFNFTEVDVCAmIEdST1VQIEJZIHJlc3BlY3RpdmVseQ0KDQpXZSB3aWxsIGNvdmVyIGVhY2ggb2YgdGhlIHBhcnRzIG9uZSBieSBvbmUNCg0KVGhlcmUgYXJlIDMgdGhpbmdzIHdlIG5lZWQgdG8ga25vdyBhYm91dCBkYXRhdHlwZXMNCiAgICANCiogYHR5cGVvZigxKWAgaXMgZG91YmxlIG9yIG51bWVyaWMgYnV0IGB0eXBlb2YoMUwpYCBpcyBpbnRlZ2VyDQoqIGB0eXBlb2YoTkEpYCBpcyBsb2dpY2FsIGJ1dCBgdHlwZW9mKE5BX2ludGVnZXJfKWAgaXMgaW50ZWdlcg0KKiBjaGFyYWN0ZXIgc3RyaW5ncyBhcmUgdmVyeSBlZmZpY2llbnQgaW4gUiBkdWUgdG8gdXNlIG9mIGdsb2JhbCBjYWNoZQ0KDQojIyBgaWAgcGFydA0KDQojIyNgaWAgaXMgdGhlIHN1YnNldHRpbmcgcGFydA0KYGBge3J9DQpEVCA8LSBkYXRhLnRhYmxlKEEgPSAxOjUsIEIgPSBjKCdhJywgJ2InLCAnYycsICdkJywgJ2UnKSwgQyA9IFRSVUUpDQpEVCAjVGhlIHNtYWxsZXIgdmVjdG9yIGlzIHJlY3ljbGVkDQpEVFsyOjMsXQ0KRFRbMjozXSAjR2l2ZXMgdGhlIHNhbWUgcmVzdWx0IGFzIHRoZSBwcmV2aW91cyBjb2RlDQpgYGANCg0KIyMjQSBkYXRhLnRhYmxlIGlzIGFsc28gYSBkYXRhLmZyYW1lDQpgYGB7cn0NCmNsYXNzKERUKQ0KYGBgDQpIZW5jZSwgdGhlIGJhc2ljIHJ1bGVzIG9mIGRhdGEuZnJhbWUgYWxzbyB3b3JrIG9uIHRoZSB2YXJpYWJsZSBEVA0KDQojIyNgLk5gIHN0b3JlcyB0aGUgbnVtYmVyIG9mIHJvd3Mgb2YgYSBkYXRhIHRhYmxlDQpgYGB7cn0NCkRUWy5OXSAjUmVzdWx0cyBpbiB0aGUgbGFzdCByb3cgb2YgRFQNCkRUW25yb3coRFQpXSAjR2l2ZXMgdGhlIHNhbWUgcmVzdWx0DQpEVFsuTiAtIDJdICNUaGlyZCBsYXN0IHJvdyBvZiBEVCANCmBgYA0KDQoNCiMjIGBqYCBwYXJ0DQoNCiMjIyBgamAgaXMgdGhlIGNvbHVtbiBzZWxlY3Rpb24gcGFydA0KDQpXZSBjYW4gc2VsZWN0IGNvbHVtbnMgdXNpbmcgYC4oKWAgKGRvdC1wYXJhbnRoZXNpcyBzeW50YXgpDQoNCmBgYHtyfQ0KRFRbLCAuKEIsIEMpXSAjU2VsZWN0aW5nIGNvbHVtbnMgQiBhbmQgQw0KYGBgDQoNCiMjIyBXZSBjYW4gbm90IG9ubHkgc2VsZWN0IGNvbHVtbnMsIGJ1dCB0aHJvdyBwcmV0dHkgbXVjaCBldmVyeXRoaW5nIGF0IGBqYA0KDQpgYGB7cn0NCkRUWywgLihBLCBCLCBDLCBsb2dhX215bmV3Y29sdW1uID0gbG9nKEEpKV0gI1ByaW50aW5nIGEgZGF0YSB0YWJsZSBjb250YWluaW5nIGxvZ2FyaXRobWljIG9wZXJhdGlvbiBjb2x1bW4gb24gQQ0KRFRbLCAuKEIsIEMgPSBzdW0oQSkpXSAjIEMgaXMgcmVjeWNsZWQNCkRUWywgbG9nKDEwKV0gI1RoaXMgcmVzdWx0cyBpbiBhIHZlY3Rvciwgbm90IGEgZGF0YSB0YWJsZQ0KIyBOb3RpY2UgdGhlIHN5bnRheC4uIFRoaXMgZG9lc24ndCBjb250YWluIG91ciBkb3QtcGFyYW50aGVzaXMgc3ludGF4DQpEVFssIHtwcmludCgxMCkNCiAgcHJpbnQoMTUpDQogIHByaW50KDE6NSl9XSAjV2UgYXJlIHRocm93aW5nIDMgcHJpbnRpbmcgc3RhdGVtZW50cyBhdCBgamANCmBgYA0KDQojIyMgV2UgY2FuIGFsc28gdXNlIC5OIGluIGBqYA0KDQpUaGlzIGlzIGhvdyBpdCB3b3JrczogSXQgb25seSBjYWxjdWxhdGVzIHRoZSBudW1iZXIgb2Ygcm93cyBpbiB0aGUgZ3JvdXAuIFdoZW4gaXQgaXMgZ3JvdXBlZCB3aXRoIGBieWAgYXJndW1lbnQsIGl0IGlzIGV2ZW4gbW9yZSBwb3dlcmZ1bCAoV2lsbCBiZSBzaG93biBsYXRlcikNCg0KYGBge3J9DQpEVCA8LSBkYXRhLnRhYmxlKGlyaXMpDQpEVFssLk5dDQpgYGANCg0KIyMgYGJ5YCBwYXJ0DQoNCmJ5IGlzIHRoZSBwYXJ0IHdoZXJlIHRoZSBkYXRhIHRhYmxlIGlzIF9ncm91cGVkIGJ5XyBvciBfc3VtbWFyaXplZF8NCg0KT25jZSwgYWdhaW4gbGV0cyByZWNhbGwgdGhlIGJhc2ljIHN5bnRheCBvZiBhIHRhYmxlOg0KYERUW2ksIGosIGJ5XWAgc3RhbmRzIGZvciBUYWtlIGBEVGAsIHN1YnNldCBieSBgaWAsIHRoZW4gY2FsY3VsYXRlIGBqYCBncm91cGVkIGJ5IGBieWANCg0KIyMjIE5vdywgbGV0cyBjYWxjdWxhdGUgdGhlIG1lYW4gU2VwYWwgTGVuZ3RoIGZvciBlYWNoIHNwZWNpZXMNCg0KYGBge3J9DQpEVFssIC4obWVhbihTZXBhbC5MZW5ndGgpKSwgYnkgPSAuKFNwZWNpZXMpXQ0KRFRbLCBtZWFuKFNlcGFsLkxlbmd0aCksIGJ5ID0gU3BlY2llc10gI0dpdmVzIHRoZSBzYW1lIHJlc3VsdC4uDQojIE5vdGljZSB0aGUgc3ludGF4Li4gd2UgaGF2ZSBza2lwcGVkIHRoZSBkb3QtcGFyYW50aGVzaXMgc3ludGF4DQojIFRoaXMgY2FuIGJlIGRvbmUgaWYgdGhlcmUgaXMgb25seSBvbmUgYXJndW1lbnQgZm9yICdqJyBhbmQgJ2J5Jw0KRFRbLCBtZWFuKFNlcGFsLkxlbmd0aCksIFNwZWNpZXNdICNUaGUgc2FtZSBvdXRwdXQgYWdhaW4NCmBgYA0KDQojIyMgVXNpbmcgLk4gaW4gYGpgDQoNCkluIHRoZSBiZWxvdyBjb2RlLCB3ZSB3aWxsIHVzZSAuTiBpbiBgamAsIHdoaWNoIHdpbGwgY2FsY3VsYXRlIHRoZSBuby4gb2Ygcm93cyBmb3IgZWFjaCBncm91cA0KYGBge3J9DQpEVFssIC5OLCBieSA9IFNwZWNpZXNdDQpEVFssIC4oY291bnQgPSAuTiksIGJ5ID0gU3BlY2llc10gI1NhbWUgb3V0cHV0LCBjb2x1bW4gbmFtZSBjaGFuZ2VkDQoNCiMgTm93IHdlIHdpbGwgdXNlIGFuIGV4cHJlc3Npb24gaW4gJ2J5Jw0KRFRbLCAuKGNvdW50ID0gLk4pLCBieSA9IC4oU3RhcnRpbmdfd2l0aCA9IHN1YnN0cihTcGVjaWVzLDEsMSkpXQ0KYGBgDQoNCiMjIyBVc2luZyBleHByZXNzaW9ucyBpbiBgYnlgDQoNClVzaW5nIHJvdW5kZWQgYXJlYSB0byBncm91cCB0aGUgc3BlY2ltZW5zDQpOb3csIGxldHMgZ3JvdXAgdGhlIHNwZWNpbWVucyBieSBTZXBhbCBBcmVhKHJvdW5kZWQgdG8gdGhlIG5lYXJlc3QgMTAgY20yKSBhbmQgY291bnQgaG93IG1hbnkgZm9yIGVhY2ggZ3JvdXANCmBgYHtyfQ0KRFRbLCAuTiwgYnkgPSAuKDEwICogcm91bmQoU2VwYWwuTGVuZ3RoICogU2VwYWwuV2lkdGggLyAxMCkpXQ0KRFRbLCAuKENvdW50ID0gLk4pLCBieSA9IC4oQXJlYSA9IDEwICogcm91bmQoU2VwYWwuTGVuZ3RoICogU2VwYWwuV2lkdGggLyAxMCkpXSAjIE5hbWluZyB0aGUgY29sdW1ucw0KYGBgDQoNCg==</div>
 
 
 
